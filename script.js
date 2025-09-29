@@ -341,6 +341,33 @@ class Toolbar {
     element.style.overflow = "auto";
     element.style.display = "inline-block";
   }
+// --- Find & Replace ---
+findAndReplace() {
+  const findText = prompt("Enter text to find:");
+  if (!findText) return;
+
+  const content = this.editor.getText(); // get plain text for searching
+
+  if (!content.includes(findText)) {
+    alert(`"${findText}" not found in the document.`);
+    return; // stop if word not found
+  }
+
+  alert(`"${findText}" found in the document.`);
+
+  const replaceText = prompt("Enter replacement text:");
+  if (replaceText === null) return;
+
+  // Replace all occurrences in HTML
+  const htmlContent = this.editor.getHTML();
+  const regex = new RegExp(findText, 'g'); // global replace
+  const newContent = htmlContent.replace(regex, replaceText);
+  this.editor.editor.innerHTML = newContent;
+
+  alert(`All occurrences of "${findText}" have been replaced with "${replaceText}".`);
+}
+
+
 }
 
 // --- Initialize Editor ---
@@ -374,6 +401,8 @@ document.getElementById('outdentBtn').addEventListener('click', () => toolbar.ou
 
 document.getElementById('insertLinkBtn').addEventListener('click', () => toolbar.insertLink());
 document.getElementById('insertImageURLBtn').addEventListener('click', () => toolbar.insertImageURL());
+document.getElementById('findReplaceBtn').addEventListener('click', () => toolbar.findAndReplace());
+
 
 const uploadBtn = document.getElementById('uploadImageBtn');
 const imageInput = document.getElementById('imageInput');
