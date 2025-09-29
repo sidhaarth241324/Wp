@@ -43,10 +43,24 @@ body.dark-mode {
   background: #222;
   color: #ddd;
 }
-body.dark-mode .editor {
+
+body.dark-mode #editor {
   background: #333;
   color: #eee;
 }
+
+body.dark-mode .toolbar button,
+body.dark-mode .toolbar select,
+body.dark-mode .toolbar input[type="color"] {
+  background: #444;
+  border: 1px solid #666;
+  color: #eee;
+}
+
+body.dark-mode .toolbar button:hover {
+  background: #555;
+}
+
 
 /* Page break */
 .page-break {

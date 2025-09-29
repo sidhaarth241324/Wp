@@ -489,3 +489,91 @@ document.getElementById('exportWordBtn')?.addEventListener('click', () => {
   const author = prompt("Enter author name:", "Author") || "Author";
   exporter.exportWord(title, author);
 });
+// --- Dark Mode / Light Mode ---
+class ThemeManager {
+  constructor() {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    this.applyTheme(savedTheme);
+  }
+
+  toggleTheme() {
+    const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(newTheme);
+  }
+
+  applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('theme', theme);
+  }
+}
+
+// --- Initialize ThemeManager ---
+const themeManager = new ThemeManager();
+
+// --- Event Listener for toggle button ---
+document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+  themeManager.toggleTheme();
+});
+// --- Auto-save Class ---
+class AutoSave {
+  constructor(editor, interval = 5000) { // default 5 seconds
+    this.editor = editor;
+    this.interval = interval;
+    this.key = 'wordpad-autosave';
+    this.startAutoSave();
+    this.loadContent();
+  }
+
+  startAutoSave() {
+    setInterval(() => {
+      const content = this.editor.getHTML();
+      localStorage.setItem(this.key, content);
+      this.showStatus("Auto-saved");
+    }, this.interval);
+  }
+
+  loadContent() {
+    const savedContent = localStorage.getItem(this.key);
+    if (savedContent) {
+      this.editor.editor.innerHTML = savedContent;
+      this.showStatus("Restored previous session");
+    }
+  }
+
+  clear() {
+    localStorage.removeItem(this.key);
+    this.showStatus("Auto-save cleared");
+  }
+
+  showStatus(message) {
+    // Simple floating message at bottom-right
+    let statusEl = document.getElementById('autosaveStatus');
+    if (!statusEl) {
+      statusEl = document.createElement('div');
+      statusEl.id = 'autosaveStatus';
+      statusEl.style.position = 'fixed';
+      statusEl.style.bottom = '10px';
+      statusEl.style.right = '10px';
+      statusEl.style.background = 'rgba(0,0,0,0.7)';
+      statusEl.style.color = '#fff';
+      statusEl.style.padding = '5px 10px';
+      statusEl.style.borderRadius = '4px';
+      statusEl.style.fontSize = '12px';
+      statusEl.style.zIndex = 10000;
+      document.body.appendChild(statusEl);
+    }
+    statusEl.innerText = message;
+    // Fade out after 2 seconds
+    setTimeout(() => {
+      statusEl.innerText = '';
+    }, 2000);
+  }
+}
+const autoSave = new AutoSave(editorApp); // default interval 5 sec
+
