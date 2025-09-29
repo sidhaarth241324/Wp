@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WordPad Pro (Class-based)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <div id="toolbar">
+  <button id="boldBtn"><b>B</b></button>
+  <button id="italicBtn"><i>I</i></button>
+  <button id="underlineBtn"><u>U</u></button>
+
+  <button id="h1Btn">H1</button>
+  <button id="h2Btn">H2</button>
+  <button id="h3Btn">H3</button>
+
+  <select id="fontFamily">
+    <option value="">Font</option>
+    <option value="Arial">Arial</option>
+    <option value="Courier New">Courier New</option>
+    <option value="Georgia">Georgia</option>
+  </select>
+
+  <select id="fontSize">
+    <option value="">Size</option>
+    <option value="1">12px</option>
+    <option value="3">16px</option>
+    <option value="5">22px</option>
+  </select>
+
+  <button id="alignLeftBtn">Left</button>
+  <button id="alignCenterBtn">Center</button>
+  <button id="alignRightBtn">Right</button>
+  <button id="alignJustifyBtn">Justify</button>
+
+  <input type="color" id="textColor" value="#000000">
+  <input type="color" id="highlightColor" value="#ffffff">
+  <button id="unorderedListBtn">• List</button>
+<button id="orderedListBtn">1. List</button>
+<button id="indentBtn">⮕ Indent</button>
+<button id="outdentBtn">← Outdent</button>
+<div class="toolbar-group">
+    <button id="insertLinkBtn" title="Insert link">🔗 Link</button>
+
+    <!-- Image from URL -->
+    <button id="insertImageURLBtn" title="Insert image from URL">🖼️ Image URL</button>
+
+    <!-- Image upload (hidden file input) -->
+   <!-- Upload button -->
+<input type="file" id="imageInput" accept="image/*" style="display:none;" />
+<button id="uploadImageBtn">Upload Image</button>
+
+
+    <!-- Table -->
+    <button id="insertTableBtn" title="Insert table">📋 Table</button>
+      <button id="clearFormattingBtn" title="Clear formatting">🧹 Clear Formatting</button>
+  <button id="resetEditorBtn" title="Reset editor">🔄 Reset</button>
+  <button id="copyPlainTextBtn" title="Copy as plain text">📋 Copy Text</button>
+  <button id="copyHTMLBtn" title="Copy as HTML">📄 Copy HTML</button>
+  <button id="previewBtn" title="Preview content">👁️ Preview</button>
+  </div>
+
+</div>
+
+<div id="editor" contenteditable="true">
+  Start typing here...
+</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

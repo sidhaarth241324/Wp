@@ -1,0 +1,79 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+}
+
+.toolbar {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.toolbar button, .toolbar select, .toolbar input[type="color"] {
+  border: 1px solid #ccc;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+.toolbar button:hover {
+  background: #eaeaea;
+}
+
+#editor {
+  min-height: 400px;       /* Gives enough vertical space */
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow-y: auto;        /* Scroll when content overflows */
+  white-space: pre-wrap;   /* Makes line breaks visible */
+  word-wrap: break-word;   /* Break long words if needed */
+  font-size: 16px;
+}
+
+/* Dark mode */
+body.dark-mode {
+  background: #222;
+  color: #ddd;
+}
+body.dark-mode .editor {
+  background: #333;
+  color: #eee;
+}
+
+/* Page break */
+.page-break {
+  border-top: 2px dashed gray;
+  margin: 20px 0;
+  page-break-after: always;
+}
+
+.editor img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  resize: both;
+  overflow: hidden;
+}
+.resizable {
+  display: inline-block;
+  resize: both;
+  overflow: hidden;
+  border: 1px dashed #aaa; /* shows resize area */
+  padding: 2px;
+}
+
+.resizable img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none; /* prevents dragging the image itself */
+}
+
