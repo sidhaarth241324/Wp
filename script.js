@@ -386,3 +386,77 @@ document.getElementById('resetEditorBtn').addEventListener('click', () => toolba
 document.getElementById('copyPlainTextBtn').addEventListener('click', () => toolbar.copyPlainText());
 
 document.getElementById('previewBtn').addEventListener('click', () => toolbar.previewContent());
+// --- Export Functions ---
+class Exporter {
+  constructor(editor) {
+    this.editor = editor;
+  }
+
+  // --- Export PDF ---
+  exportPDF(title = "Document", author = "Author") {
+    const opt = {
+      margin:       0.5,
+      filename:     `${title}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    
+    // Add metadata by injecting a hidden div with title/author
+    const metaDiv = document.createElement('div');
+    metaDiv.style.display = 'none';
+    metaDiv.innerHTML = `<p>Title: ${title}</p><p>Author: ${author}</p>`;
+    this.editor.editor.appendChild(metaDiv);
+
+    html2pdf().set(opt).from(this.editor.editor).save().then(() => {
+      metaDiv.remove(); // clean up
+    });
+  }
+
+  // --- Export Word (.doc) ---
+  exportWord(title = "Document", author = "Author") {
+    let header = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+            xmlns:w='urn:schemas-microsoft-com:office:word' 
+            xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>${title}</title></head>
+      <body>
+      <h2>${title}</h2>
+      <h4>Author: ${author}</h4>
+    `;
+    let footer = "</body></html>";
+    let sourceHTML = header + this.editor.getHTML() + footer;
+
+    const blob = new Blob(['\ufeff', sourceHTML], {
+      type: 'application/msword'
+    });
+
+    // Download file
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+}
+
+// --- Initialize Exporter ---
+const exporter = new Exporter(editorApp);
+
+// --- Add Export Event Listeners ---
+document.getElementById('exportPDFBtn')?.addEventListener('click', () => {
+  const title = prompt("Enter document title:", "My Document") || "Document";
+  const author = prompt("Enter author name:", "Author") || "Author";
+  exporter.exportPDF(title, author);
+});
+
+document.getElementById('exportWordBtn')?.addEventListener('click', () => {
+  const title = prompt("Enter document title:", "My Document") || "Document";
+  const author = prompt("Enter author name:", "Author") || "Author";
+  exporter.exportWord(title, author);
+});
