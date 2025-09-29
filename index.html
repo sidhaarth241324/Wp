@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <title>WordPad Pro (Class-based)</title>
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
+  <header id="editorTitle">
+  <h1>WordPad Pro</h1>
+</header>
+
  <div id="toolbar">
   <button id="boldBtn"><b>B</b></button>
   <button id="italicBtn"><i>I</i></button>
@@ -68,9 +73,7 @@
 
 </div>
 
-<div id="editor" contenteditable="true">
-  Start typing here...
-</div>
+
 <!-- Find & Replace Modal -->
 <div id="findReplaceModal" style="display:none;" class="modal">
   <div class="modal-content">
@@ -93,6 +96,14 @@
     <button id="closeMetadataBtn">Close</button>
   </div>
 </div>
+
+
+<div id="editor">
+  <div class="page" contenteditable="true">Start typing here...</div>
+</div>
+
+
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <script src="script.js"></script>

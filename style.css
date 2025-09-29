@@ -21,7 +21,7 @@ body {
 /* Make toolbar fixed at top */
 #toolbar {
   position: fixed;
-  top: 0;
+  top: 60px;
   left: 0;
   width: 100%;
   background: #fff;
@@ -47,6 +47,27 @@ body {
   white-space: pre-wrap;
   word-wrap: break-word;
   font-size: 16px;
+  margin-top: 130px;
+  
+}
+#editorTitle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  z-index: 1001; /* above toolbar */
+  padding: 10px 0;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#editorTitle h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
 }
 
 
@@ -123,3 +144,17 @@ body.dark-mode .toolbar button:hover {
   width: 300px;
   text-align: center;
 }
+.page {
+  position: relative;   /* this makes children absolute inside page */
+  width: 210mm;         /* A4 width */
+  height: 297mm;        /* A4 height */
+  margin: 10px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  overflow: hidden;     /* ensures content doesn't visually overflow */
+}
+
+
+
+

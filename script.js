@@ -242,59 +242,126 @@ class Toolbar {
   }
 
   // --- Images ---
-  insertImageURL() {
+  // --- Insert Image ---
+insertImageURL() {
     const url = prompt("Enter image URL:");
     if (!url) return;
-    const img = document.createElement("img");
-    img.src = url;
-    this.applyImageProps(img);
-    this.editor.editor.appendChild(img);
-  }
+    this.addImage(url);
+}
 
-  insertImageFile(file) {
+insertImageFile(file) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      this.applyImageProps(img);
-      this.editor.editor.appendChild(img);
-    };
+    reader.onload = e => this.addImage(e.target.result);
     reader.readAsDataURL(file);
-  }
+}
 
-  applyImageProps(img) {
-    img.style.maxWidth = "300px";
-    img.style.cursor = "move";
-    img.draggable = true;
-    this.makeDraggable(img);
-    this.makeResizable(img);
-  }
+addImage(src) {
+    const img = document.createElement("img");
+    img.src = src;
+    img.style.maxWidth = "100%";   // fits inside page
+    img.style.height = "auto";
+    img.style.display = "block";
+    img.style.margin = "10px 0";
+    img.style.cursor = "pointer";
 
-  // --- Tables ---
-  insertTable(rows = 2, cols = 2) {
-    const table = document.createElement("table");
-    table.border = "1";
-    table.style.borderCollapse = "collapse";
-    table.style.cursor = "move";
+    // Resizable using simple drag handle
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "inline-block";
+    wrapper.style.position = "relative";
+    wrapper.appendChild(img);
 
-    for (let r = 0; r < rows; r++) {
-      const row = table.insertRow();
-      for (let c = 0; c < cols; c++) {
-        const cell = row.insertCell();
-        cell.innerText = "Cell";
-        cell.contentEditable = true;
-        cell.style.minWidth = "50px";
-        cell.style.minHeight = "30px";
-        cell.style.padding = "5px";
-        cell.style.border = "1px solid #999";
-      }
+    const resizer = document.createElement("div");
+    resizer.style.width = "10px";
+    resizer.style.height = "10px";
+    resizer.style.background = "blue";
+    resizer.style.position = "absolute";
+    resizer.style.right = "0";
+    resizer.style.bottom = "0";
+    resizer.style.cursor = "se-resize";
+    wrapper.appendChild(resizer);
+
+    let isResizing = false;
+    resizer.addEventListener("mousedown", e => {
+        e.preventDefault();
+        isResizing = true;
+    });
+    document.addEventListener("mousemove", e => {
+        if (!isResizing) return;
+        const rect = wrapper.getBoundingClientRect();
+        img.style.width = Math.min(e.pageX - rect.left, wrapper.parentElement.clientWidth) + "px";
+    });
+    document.addEventListener("mouseup", () => isResizing = false);
+
+    // Append to last page
+    const pages = this.editor.editor.querySelectorAll('.page');
+    const lastPage = pages[pages.length - 1];
+    lastPage.appendChild(wrapper);
+}
+
+// --- Insert Table ---
+insertTable() {
+    // Ask user for rows and columns
+    const rows = parseInt(prompt("Enter number of rows:", "2"));
+    const cols = parseInt(prompt("Enter number of columns:", "2"));
+
+    if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) {
+        alert("Invalid input!");
+        return;
     }
 
-    this.makeDraggable(table);
-    this.makeResizable(table);
-    this.editor.editor.appendChild(table);
-  }
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.style.margin = "10px 0";
+
+    for (let r = 0; r < rows; r++) {
+        const tr = table.insertRow();
+        for (let c = 0; c < cols; c++) {
+            const td = tr.insertCell();
+            td.contentEditable = "true";
+            td.innerText = "Cell";
+            td.style.border = "1px solid #999";
+            td.style.padding = "5px";
+            td.style.minWidth = "50px";
+            td.style.minHeight = "30px";
+        }
+    }
+
+    // Table wrapper for resizing
+    const wrapper = document.createElement("div");
+    wrapper.style.width = "100%";
+    wrapper.style.display = "inline-block";
+    wrapper.style.position = "relative";
+    wrapper.appendChild(table);
+
+    const resizer = document.createElement("div");
+    resizer.style.width = "10px";
+    resizer.style.height = "10px";
+    resizer.style.background = "blue";
+    resizer.style.position = "absolute";
+    resizer.style.right = "0";
+    resizer.style.bottom = "0";
+    resizer.style.cursor = "se-resize";
+    wrapper.appendChild(resizer);
+
+    let isResizing = false;
+    resizer.addEventListener("mousedown", e => {
+        e.preventDefault();
+        isResizing = true;
+    });
+    document.addEventListener("mousemove", e => {
+        if (!isResizing) return;
+        const rect = wrapper.getBoundingClientRect();
+        table.style.width = Math.min(e.pageX - rect.left, wrapper.parentElement.clientWidth) + "px";
+    });
+    document.addEventListener("mouseup", () => isResizing = false);
+
+    // Append to last page
+    const pages = this.editor.editor.querySelectorAll('.page');
+    const lastPage = pages[pages.length - 1];
+    lastPage.appendChild(wrapper);
+}
 
   // --- Clear & Reset ---
   clearFormatting() {
@@ -319,32 +386,80 @@ class Toolbar {
   }
 
   // --- Drag & Resize Utilities ---
-  makeDraggable(element) {
-    let offsetX = 0, offsetY = 0, isDown = false;
-    element.addEventListener('mousedown', e => {
-      isDown = true;
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      element.style.position = 'absolute';
-      element.style.zIndex = 1000;
-    });
-    document.addEventListener('mousemove', e => {
-      if (!isDown) return;
-      element.style.left = (e.pageX - offsetX) + 'px';
-      element.style.top = (e.pageY - offsetY) + 'px';
-    });
-    document.addEventListener('mouseup', () => isDown = false);
-  }
+ makeDraggable(element) {
+  let offsetX = 0, offsetY = 0, isDown = false;
 
-  makeResizable(element) {
-    element.style.resize = "both";
-    element.style.overflow = "auto";
-    element.style.display = "inline-block";
-  }
+  element.addEventListener('mousedown', e => {
+    isDown = true;
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
+    element.style.position = 'absolute';
+    element.style.zIndex = 1000;
+  });
 
+  document.addEventListener('mousemove', e => {
+    if (!isDown) return;
 
+    const parent = element.parentElement;
+    const rect = parent.getBoundingClientRect();
 
+    // Relative to parent
+    let left = e.clientX - rect.left - offsetX;
+    let top = e.clientY - rect.top - offsetY;
+
+    // Fit inside page
+    left = Math.max(0, Math.min(left, rect.width - element.offsetWidth));
+    top = Math.max(0, Math.min(top, rect.height - element.offsetHeight));
+
+    element.style.left = left + 'px';
+    element.style.top = top + 'px';
+  });
+
+  document.addEventListener('mouseup', () => isDown = false);
 }
+
+makeResizable(element) {
+  element.style.position = 'absolute';
+  element.style.boxSizing = 'border-box';
+
+  const resizer = document.createElement('div');
+  resizer.style.width = '10px';
+  resizer.style.height = '10px';
+  resizer.style.background = 'blue';
+  resizer.style.position = 'absolute';
+  resizer.style.right = '0';
+  resizer.style.bottom = '0';
+  resizer.style.cursor = 'se-resize';
+  element.appendChild(resizer);
+
+  let isResizing = false;
+
+  resizer.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    isResizing = true;
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isResizing) return;
+
+    const parent = element.parentElement;
+    const rect = parent.getBoundingClientRect();
+
+    let width = e.clientX - element.getBoundingClientRect().left;
+    let height = e.clientY - element.getBoundingClientRect().top;
+
+    // Keep inside page
+    width = Math.min(width, rect.width - element.offsetLeft);
+    height = Math.min(height, rect.height - element.offsetTop);
+
+    element.style.width = width + 'px';
+    element.style.height = height + 'px';
+  });
+
+  document.addEventListener('mouseup', () => isResizing = false);
+}
+}
+
 
 // --- Initialize Editor ---
 const editorApp = new TextEditor('editor');
@@ -612,4 +727,5 @@ document.getElementById("exportWordBtn").addEventListener("click", () => {
     link.click();
   });
 });
+
 
