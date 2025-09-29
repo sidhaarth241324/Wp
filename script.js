@@ -341,31 +341,7 @@ class Toolbar {
     element.style.overflow = "auto";
     element.style.display = "inline-block";
   }
-// --- Find & Replace ---
-findAndReplace() {
-  const findText = prompt("Enter text to find:");
-  if (!findText) return;
 
-  const content = this.editor.getText(); // get plain text for searching
-
-  if (!content.includes(findText)) {
-    alert(`"${findText}" not found in the document.`);
-    return; // stop if word not found
-  }
-
-  alert(`"${findText}" found in the document.`);
-
-  const replaceText = prompt("Enter replacement text:");
-  if (replaceText === null) return;
-
-  // Replace all occurrences in HTML
-  const htmlContent = this.editor.getHTML();
-  const regex = new RegExp(findText, 'g'); // global replace
-  const newContent = htmlContent.replace(regex, replaceText);
-  this.editor.editor.innerHTML = newContent;
-
-  alert(`All occurrences of "${findText}" have been replaced with "${replaceText}".`);
-}
 
 
 }
@@ -401,7 +377,6 @@ document.getElementById('outdentBtn').addEventListener('click', () => toolbar.ou
 
 document.getElementById('insertLinkBtn').addEventListener('click', () => toolbar.insertLink());
 document.getElementById('insertImageURLBtn').addEventListener('click', () => toolbar.insertImageURL());
-document.getElementById('findReplaceBtn').addEventListener('click', () => toolbar.findAndReplace());
 
 
 const uploadBtn = document.getElementById('uploadImageBtn');
@@ -421,74 +396,7 @@ class Exporter {
     this.editor = editor;
   }
 
-  // --- Export PDF ---
-  exportPDF(title = "Document", author = "Author") {
-    const opt = {
-      margin:       0.5,
-      filename:     `${title}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    
-    // Add metadata by injecting a hidden div with title/author
-    const metaDiv = document.createElement('div');
-    metaDiv.style.display = 'none';
-    metaDiv.innerHTML = `<p>Title: ${title}</p><p>Author: ${author}</p>`;
-    this.editor.editor.appendChild(metaDiv);
-
-    html2pdf().set(opt).from(this.editor.editor).save().then(() => {
-      metaDiv.remove(); // clean up
-    });
-  }
-
-  // --- Export Word (.doc) ---
-  exportWord(title = "Document", author = "Author") {
-    let header = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-            xmlns:w='urn:schemas-microsoft-com:office:word' 
-            xmlns='http://www.w3.org/TR/REC-html40'>
-      <head><meta charset='utf-8'><title>${title}</title></head>
-      <body>
-      <h2>${title}</h2>
-      <h4>Author: ${author}</h4>
-    `;
-    let footer = "</body></html>";
-    let sourceHTML = header + this.editor.getHTML() + footer;
-
-    const blob = new Blob(['\ufeff', sourceHTML], {
-      type: 'application/msword'
-    });
-
-    // Download file
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 0);
-  }
 }
-
-// --- Initialize Exporter ---
-const exporter = new Exporter(editorApp);
-
-// --- Add Export Event Listeners ---
-document.getElementById('exportPDFBtn')?.addEventListener('click', () => {
-  const title = prompt("Enter document title:", "My Document") || "Document";
-  const author = prompt("Enter author name:", "Author") || "Author";
-  exporter.exportPDF(title, author);
-});
-
-document.getElementById('exportWordBtn')?.addEventListener('click', () => {
-  const title = prompt("Enter document title:", "My Document") || "Document";
-  const author = prompt("Enter author name:", "Author") || "Author";
-  exporter.exportWord(title, author);
-});
 // --- Dark Mode / Light Mode ---
 class ThemeManager {
   constructor() {
@@ -576,4 +484,132 @@ class AutoSave {
   }
 }
 const autoSave = new AutoSave(editorApp); // default interval 5 sec
+
+class FindReplace {
+  constructor(editorId) {
+    this.editor = document.getElementById(editorId);
+    this.modal = document.getElementById("findReplaceModal");
+    this.findInput = document.getElementById("findInput");
+    this.replaceInput = document.getElementById("replaceInput");
+    this.findStatus = document.getElementById("findStatus");
+
+    document.getElementById("findReplaceBtn").addEventListener("click", () => this.openModal());
+    document.getElementById("closeModalBtn").addEventListener("click", () => this.closeModal());
+    document.getElementById("findBtn").addEventListener("click", () => this.findText());
+    document.getElementById("replaceBtn").addEventListener("click", () => this.replaceText());
+  }
+
+  openModal() {
+    this.modal.style.display = "flex";
+  }
+
+  closeModal() {
+    this.modal.style.display = "none";
+    this.findStatus.textContent = "";
+    this.findInput.value = "";
+    this.replaceInput.value = "";
+  }
+
+  findText() {
+    const text = this.editor.innerHTML;
+    const searchWord = this.findInput.value;
+
+   const regex = new RegExp(searchWord, "g");
+const matches = text.match(regex);
+
+if (matches) {
+  this.findStatus.textContent = `✅ Found "${searchWord}" (${matches.length} times)`;
+  this.findStatus.style.color = "green";
+} else {
+  this.findStatus.textContent = `❌ "${searchWord}" not found`;
+  this.findStatus.style.color = "red";
+}
+  }
+
+  replaceText() {
+    const searchWord = this.findInput.value;
+    const replaceWord = this.replaceInput.value;
+
+    if (!searchWord) return;
+
+    const regex = new RegExp(searchWord, "g");
+    if (this.editor.innerHTML.includes(searchWord)) {
+      this.editor.innerHTML = this.editor.innerHTML.replace(regex, replaceWord);
+      this.findStatus.textContent = `🔄 Replaced all "${searchWord}" with "${replaceWord}"`;
+      this.findStatus.style.color = "blue";
+    } else {
+      this.findStatus.textContent = `❌ Nothing to replace`;
+      this.findStatus.style.color = "red";
+    }
+  }
+}
+
+// Initialize after page load
+window.onload = () => {
+  new FindReplace("editor");
+};
+class MetadataManager {
+  constructor() {
+    this.modal = document.getElementById("metadataModal");
+    this.titleInput = document.getElementById("docTitle");
+    this.authorInput = document.getElementById("docAuthor");
+    this.metadata = { title: "Untitled", author: "Unknown" };
+
+    // Buttons
+    document.getElementById("saveMetadataBtn").addEventListener("click", () => this.saveMetadata());
+    document.getElementById("closeMetadataBtn").addEventListener("click", () => this.closeModal());
+  }
+
+  openModal(callback) {
+    this.modal.style.display = "flex";
+    this.callback = callback; // export function to call later
+  }
+
+  closeModal() {
+    this.modal.style.display = "none";
+  }
+
+  saveMetadata() {
+    this.metadata.title = this.titleInput.value || "Untitled";
+    this.metadata.author = this.authorInput.value || "Unknown";
+    this.closeModal();
+
+    if (this.callback) this.callback(this.metadata);
+  }
+}
+// Initialize Metadata Manager
+const metadataManager = new MetadataManager();
+
+// PDF Export
+document.getElementById("exportPDFBtn").addEventListener("click", () => {
+  metadataManager.openModal((meta) => {
+    const element = document.getElementById("editor");
+    const opt = {
+      margin: 10,
+      filename: meta.title + ".pdf",
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+    html2pdf().from(element).set(opt).save();
+  });
+});
+
+// Word Export
+document.getElementById("exportWordBtn").addEventListener("click", () => {
+  metadataManager.openModal((meta) => {
+    const editorContent = document.getElementById("editor").innerHTML;
+    const blob = new Blob(
+      [
+        `<html><head><meta charset="UTF-8"><title>${meta.title}</title>
+        <meta name="author" content="${meta.author}"></head>
+        <body>${editorContent}</body></html>`
+      ],
+      { type: "application/msword" }
+    );
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = meta.title + ".doc";
+    link.click();
+  });
+});
 

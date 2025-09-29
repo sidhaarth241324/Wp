@@ -65,10 +65,33 @@
   <button id="previewBtn" title="Preview content">👁️ Preview</button>
   </div>
 
+
 </div>
 
 <div id="editor" contenteditable="true">
   Start typing here...
+</div>
+<!-- Find & Replace Modal -->
+<div id="findReplaceModal" style="display:none;" class="modal">
+  <div class="modal-content">
+    <h3>Find & Replace</h3>
+    <label>Find: <input type="text" id="findInput"></label><br><br>
+    <label>Replace with: <input type="text" id="replaceInput"></label><br><br>
+    <button id="findBtn">Find</button>
+    <button id="replaceBtn">Replace</button>
+    <button id="closeModalBtn">Close</button>
+    <p id="findStatus"></p>
+  </div>
+</div>
+<!-- Metadata Modal (Title & Author) -->
+<div id="metadataModal" style="display:none;" class="modal">
+  <div class="modal-content">
+    <h3>Export Settings</h3>
+    <label>Title: <input type="text" id="docTitle"></label><br><br>
+    <label>Author: <input type="text" id="docAuthor"></label><br><br>
+    <button id="saveMetadataBtn">Save</button>
+    <button id="closeMetadataBtn">Close</button>
+  </div>
 </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
